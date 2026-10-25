@@ -17,15 +17,15 @@ export function createVehicleRouter(vehicles: VehicleService): Router {
   }));
 
   router.post('/', asyncHandler(async (req, res) => {
-    res.status(201).json(await vehicles.create(vehicleSchema.parse(req.body)));
+    res.status(201).json(await vehicles.create(vehicleSchema.parse(req.body), req.user?.id));
   }));
 
   router.put('/:id', asyncHandler(async (req, res) => {
-    res.json(await vehicles.update(req.params.id, updateVehicleSchema.parse(req.body)));
+    res.json(await vehicles.update(req.params.id, updateVehicleSchema.parse(req.body), req.user?.id));
   }));
 
   router.delete('/:id', requireRole('ADMIN'), asyncHandler(async (req, res) => {
-    await vehicles.remove(req.params.id);
+    await vehicles.remove(req.params.id, req.user?.id);
     res.status(204).end();
   }));
 
@@ -35,7 +35,7 @@ export function createVehicleRouter(vehicles: VehicleService): Router {
 
   router.post('/:id/restock', requireRole('ADMIN'), asyncHandler(async (req, res) => {
     const { quantity } = restockSchema.parse(req.body);
-    res.json(await vehicles.restock(req.params.id, quantity));
+    res.json(await vehicles.restock(req.params.id, quantity, req.user?.id));
   }));
 
   return router;

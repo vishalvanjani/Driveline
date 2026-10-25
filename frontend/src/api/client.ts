@@ -1,4 +1,13 @@
-import type { AuthResult, Vehicle, VehicleFilters, VehicleInput } from '../types';
+import type {
+  ActivityItem,
+  AuthResult,
+  CustomerSummary,
+  DashboardKpis,
+  SaleRecord,
+  Vehicle,
+  VehicleFilters,
+  VehicleInput,
+} from '../types';
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:4000';
 export const SESSION_KEY = 'dealership.session';
@@ -57,7 +66,11 @@ export const api = {
   listVehicles: () => request<Vehicle[]>('/api/vehicles'),
   searchVehicles: (filters: VehicleFilters) => {
     const params = new URLSearchParams();
-    for (const [key, value] of Object.entries(filters)) if (value) params.set(key, value);
+    for (const [key, value] of Object.entries(filters)) {
+      if (value !== undefined && value !== '') {
+        params.set(key, String(value));
+      }
+    }
     return request<Vehicle[]>(`/api/vehicles/search?${params.toString()}`);
   },
   createVehicle: (data: VehicleInput) => request<Vehicle>('/api/vehicles', { method: 'POST', body: json(data) }),
@@ -67,4 +80,10 @@ export const api = {
   purchaseVehicle: (id: string) => request<Vehicle>(`/api/vehicles/${id}/purchase`, { method: 'POST' }),
   restockVehicle: (id: string, quantity: number) =>
     request<Vehicle>(`/api/vehicles/${id}/restock`, { method: 'POST', body: json({ quantity }) }),
+
+  // Platform extensions
+  getKpis: () => request<DashboardKpis>('/api/analytics/kpis'),
+  getSales: () => request<SaleRecord[]>('/api/sales'),
+  getActivity: () => request<ActivityItem[]>('/api/activity'),
+  getCustomers: () => request<CustomerSummary[]>('/api/customers'),
 };

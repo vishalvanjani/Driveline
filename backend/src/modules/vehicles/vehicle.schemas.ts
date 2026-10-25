@@ -6,6 +6,10 @@ const optionalPrice = z.preprocess(
   (v) => (v === '' || v === undefined ? undefined : Number(v)),
   z.number().min(0).optional(),
 );
+const optionalInt = z.preprocess(
+  (v) => (v === '' || v === undefined ? undefined : Number(v)),
+  z.number().int().optional(),
+);
 
 export const vehicleSchema = z.object({
   make: z.string().trim().min(1, 'Make is required'),
@@ -13,6 +17,10 @@ export const vehicleSchema = z.object({
   category: z.string().trim().min(1, 'Category is required'),
   price: z.number().positive('Price must be greater than 0'),
   quantity: z.number().int().min(0, 'Quantity cannot be negative'),
+  year: z.number().int().min(1900).max(2100).optional(),
+  vin: z.string().trim().optional(),
+  mileage: z.number().int().min(0).optional(),
+  fuelType: z.string().trim().optional(),
 });
 
 export const updateVehicleSchema = vehicleSchema.partial();
@@ -24,6 +32,9 @@ export const searchSchema = z
     category: optionalText,
     minPrice: optionalPrice,
     maxPrice: optionalPrice,
+    status: optionalText, // "in_stock" | "low_stock" | "out_of_stock"
+    sortBy: optionalText, // "price" | "name" | "quantity" | "createdAt"
+    sortOrder: z.enum(['asc', 'desc']).optional(),
   })
   .refine((q) => q.minPrice === undefined || q.maxPrice === undefined || q.minPrice <= q.maxPrice, {
     message: 'minPrice must be less than or equal to maxPrice',

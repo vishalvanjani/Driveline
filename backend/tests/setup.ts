@@ -6,6 +6,7 @@ process.env.JWT_SECRET = 'test-secret';
 const { prisma } = await import('../src/lib/prisma.js');
 
 beforeEach(async () => {
+  await prisma.activityLog.deleteMany();
   await prisma.purchase.deleteMany();
   await prisma.vehicle.deleteMany();
   await prisma.user.deleteMany();

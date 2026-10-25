@@ -23,17 +23,32 @@ model Vehicle {
   category  String
   price     Float
   quantity  Int        @default(0)
+  year      Int?
+  vin       String?
+  mileage   Int?
+  fuelType  String?
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   purchases Purchase[]
 }
 
-/// Audit trail of purchases; also lets the purchase endpoint be transactional.
+/// Audit trail of customer purchases (sales). Preserves transactional stock decrement.
 model Purchase {
   id        String   @id @default(uuid())
   userId    String
   vehicleId String
+  pricePaid Float?
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   vehicle   Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+}
+
+/// Persistent audit trail of dealership operational activities.
+model ActivityLog {
+  id        String   @id @default(uuid())
+  action    String   // "CREATED" | "UPDATED" | "DELETED" | "PURCHASED" | "RESTOCKED"
+  details   String
+  userId    String?
+  vehicleId String?
+  createdAt DateTime @default(now())
 }
